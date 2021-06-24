@@ -1,6 +1,8 @@
 # RGB_To_UV
 An OBS Shader + Blender File to create 3D Scenes in OBS
 
+[Download here](https://github.com/rmanky/RGB_To_UV/releases/latest)
+
 Example scenes:
 ![Vehicle scene](https://i.imgur.com/FrFjJtI.png)
 
