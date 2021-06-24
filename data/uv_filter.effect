@@ -1,0 +1,66 @@
+uniform float4x4 ViewProj;
+uniform texture2d image;
+
+uniform texture2d texture_a;
+uniform texture2d texture_b;
+
+uniform float lighting;
+uniform float resolution;
+
+sampler_state uv_sampler {
+	Filter    = Linear;
+	AddressU  = Clamp;
+	AddressV  = Clamp;
+};
+
+struct VertData {
+	float4 pos : POSITION;
+	float2 uv  : TEXCOORD0;
+};
+
+VertData VSDefault(VertData v_in)
+{
+	VertData vert_out;
+	vert_out.pos = mul(float4(v_in.pos.xyz, 1.0), ViewProj);
+	vert_out.uv  = v_in.uv;
+
+	return vert_out;
+}
+
+float4 RGBToUV(VertData v_in) : TARGET
+{
+	float4 uv_a = texture_a.Sample(uv_sampler, v_in.uv);
+	
+	float x_m = uv_a.r;
+	float y_m = uv_a.g;
+	float shadow = uv_a.b;
+	
+	float4 uv_b = texture_b.Sample(uv_sampler, v_in.uv);
+	
+	float x_b = uv_b.r;
+	float y_b = uv_b.g;
+	float alpha = uv_b.b;
+	
+	float f_x = (x_m * (resolution - 1.0)) + x_b;
+	f_x /= resolution;
+	
+	float f_y = (y_m * (resolution - 1.0)) + y_b;
+	f_y /= resolution;
+	
+	float2 rgb_uv = float2(f_x, 1.0 - f_y);
+	
+	float4 final = image.Sample(uv_sampler, rgb_uv);
+	final.rgb *= clamp(shadow + (1.0 - lighting), 0.0, 1.0);
+	final.a *= alpha;
+	
+	return final;
+}
+
+technique Draw
+{
+	pass
+	{
+		vertex_shader = VSDefault(v_in);
+		pixel_shader  = RGBToUV(v_in);
+	}
+}
