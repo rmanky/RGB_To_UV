@@ -1,4 +1,4 @@
-# RGB_To_UV
+# RGB To UV
 An OBS Shader + Blender File to create 3D Scenes in OBS.
 
 *A warning, it's not perfect. We need to convert an RGB value (between 0-255) to a pixel value (between 0-1920 or 0-1080).*
